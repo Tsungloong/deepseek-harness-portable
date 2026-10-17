@@ -1,0 +1,18 @@
+# Runtime directories — generated at launch
+runtimes/
+packages/
+data/
+state/
+logs/
+temp/
+
+# npm artifacts in locks dir
+scripts/locks/node_modules/
+node_modules/
+dist/
+output/
+.ccg/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+{
+  "name": "deepseek-harness-portable",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Carry the official DeepSeek Harness in a self-contained folder.",
+  "author": "Tsungloong",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test scripts/tests/*.test.mjs",
+    "test:runtime": "node scripts/tests/runtime-smoke.mjs",
+    "release": "node scripts/package-release.mjs"
+  }
+}

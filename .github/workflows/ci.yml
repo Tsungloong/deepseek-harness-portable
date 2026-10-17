@@ -1,0 +1,43 @@
+name: Portable checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  portable:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bootstrap Linux
+        if: runner.os == 'Linux'
+        run: sh linux.sh setup
+      - name: Bootstrap macOS
+        if: runner.os == 'macOS'
+        run: sh mac.sh setup
+      - name: Bootstrap Windows
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: windows.bat setup
+      - name: Unit and runtime checks (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = macOS ]; then target=macos-arm64; else target=linux-x64; fi
+          node="runtimes/$target/node/bin/node"
+          "$node" --test scripts/tests/*.test.mjs
+          "$node" scripts/tests/runtime-smoke.mjs
+      - name: Unit and runtime checks (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          & .\runtimes\windows-x64\node\node.exe --test scripts/tests/*.test.mjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          & .\runtimes\windows-x64\node\node.exe scripts/tests/runtime-smoke.mjs
+          exit $LASTEXITCODE
