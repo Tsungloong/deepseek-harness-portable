@@ -6,12 +6,24 @@ state/
 logs/
 temp/
 
-# npm artifacts in locks dir
-scripts/locks/node_modules/
+# npm / build artifacts
 node_modules/
+scripts/locks/node_modules/
 dist/
 output/
 .ccg/
+
+# Local environment, cache and interrupted downloads
+.env
+*.bad
+*.part
+*.portable-backup
+*.log
+
+# Editors / IDE
+.vscode/
+.idea/
+desktop.ini
 
 # OS
 .DS_Store

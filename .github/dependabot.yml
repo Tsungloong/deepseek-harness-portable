@@ -1,0 +1,10 @@
+# 只自动更新 CI 使用的 GitHub Actions。
+# scripts/locks/ 中的依赖锁是刻意固定的发布基线，不做自动升级。
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"

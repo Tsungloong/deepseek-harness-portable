@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安全漏洞（私密报告）
+    url: https://github.com/Tsungloong/deepseek-harness-portable/security/advisories/new
+    about: 请勿在公开 Issue 中披露安全漏洞，请按 SECURITY.md 私密报告。
+  - name: 使用与故障排查
+    url: https://github.com/Tsungloong/deepseek-harness-portable/blob/main/docs/troubleshooting.md
+    about: 安装、启动、端口、迁移与更新问题的常见处理步骤。

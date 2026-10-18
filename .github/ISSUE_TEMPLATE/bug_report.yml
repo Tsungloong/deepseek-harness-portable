@@ -1,0 +1,83 @@
+name: Bug report
+description: 报告可复现的问题（安装、启动、运行、迁移、更新等）
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。请先查看[故障排查](https://github.com/Tsungloong/deepseek-harness-portable/blob/main/docs/troubleshooting.md)与[验证记录](https://github.com/Tsungloong/deepseek-harness-portable/blob/main/docs/validation.md)。
+        提交前请删除 API Key、令牌、会话内容与本机绝对路径等敏感信息。
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已搜索现有 Issue，确认不是重复问题
+          required: true
+        - label: 我已阅读故障排查文档并尝试其中步骤
+          required: true
+  - type: input
+    id: platform
+    attributes:
+      label: 平台与架构
+      description: 操作系统、版本与架构
+      placeholder: Windows 11 x64 / Ubuntu 24.04 x64 / macOS 14 arm64
+    validations:
+      required: true
+  - type: input
+    id: portable-version
+    attributes:
+      label: 便携层版本
+      description: 运行 `windows.bat --version`（或 `sh linux.sh --version`）得到的便携层版本
+      placeholder: 1.0.2
+    validations:
+      required: true
+  - type: input
+    id: dsh-version
+    attributes:
+      label: 官方 Harness 版本
+      description: 同一 `--version` 输出中的 dsh 版本
+      placeholder: 0.2.1-rc.2
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤
+      description: 从干净解压开始，按顺序列出可复现的最少步骤
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: 期望结果与实际结果
+      value: |
+        期望：
+        实际：
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: doctor 输出
+      description: 运行 `windows.bat doctor`（或 `sh linux.sh doctor`）并粘贴输出；如无法运行请说明原因
+      render: shell
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志（可选，请脱敏）
+      render: shell
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我已移除 API Key、令牌、会话内容、真实姓名与本机绝对路径等敏感信息
+          required: true
+        - label: 我确认没有公开上传包含 `data/` 的安装目录
+          required: true
