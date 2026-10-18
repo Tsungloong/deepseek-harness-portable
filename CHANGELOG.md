@@ -8,6 +8,7 @@
 ### Fixed
 
 - Release workflow 从 annotated tag 正文读取发布说明，不再回退到提交信息。
+- `scripts/check.mjs` 在解包目录位于其他 Git 仓库内时改用目录遍历，避免静默跳过隐私与语法扫描。
 
 ## [1.0.2] - 2026-10-19
 

@@ -14,8 +14,16 @@ const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const skip = new Set(['.git', 'data', 'runtimes', 'packages', 'state', 'output', 'logs', 'temp', 'dist', 'node_modules', 'private' + '-backups'])
 
 function repositoryFiles() {
-  const result = spawnSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: root, encoding: 'utf8' })
-  if (result.status === 0) return result.stdout.split('\0').filter(Boolean)
+  // git ls-files only applies when this folder is the repository root. An
+  // unpacked release inside another repository must be walked directly.
+  const top = spawnSync('git', ['rev-parse', '--show-toplevel'], { cwd: root, encoding: 'utf8' })
+  const samePath = (a, b) => process.platform === 'win32'
+    ? resolve(a).toLowerCase() === resolve(b).toLowerCase()
+    : resolve(a) === resolve(b)
+  if (top.status === 0 && samePath(top.stdout.trim(), root)) {
+    const result = spawnSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: root, encoding: 'utf8' })
+    if (result.status === 0) return result.stdout.split('\0').filter(Boolean)
+  }
   const list = []
   const walk = dir => {
     for (const item of readdirSync(join(root, dir), { withFileTypes: true })) {
