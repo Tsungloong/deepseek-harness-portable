@@ -47,7 +47,12 @@ jobs:
         run: node scripts/check.mjs --tag "$GITHUB_REF_NAME"
       - name: Build release archives
         run: node scripts/package-release.mjs
+      - name: Extract annotated tag notes
+        run: |
+          git fetch --force --tags origin "+refs/tags/*:refs/tags/*"
+          git tag -l --format='%(contents)' "$GITHUB_REF_NAME" > "$RUNNER_TEMP/release-notes.md"
+          test -s "$RUNNER_TEMP/release-notes.md"
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --verify-tag --title "DeepSeek Harness Portable $GITHUB_REF_NAME" --notes-from-tag dist/*
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --title "DeepSeek Harness Portable $GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/release-notes.md" dist/*

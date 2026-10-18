@@ -3,6 +3,12 @@
 本文件记录项目的所有重要变更。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本 2.0.0](https://semver.org/lang/zh-CN/spec/v2.0.0.html)。
 
+## [Unreleased]
+
+### Fixed
+
+- Release workflow 从 annotated tag 正文读取发布说明，不再回退到提交信息。
+
 ## [1.0.2] - 2026-10-19
 
 仓库治理、CI / 发布自动化、启动器精简与测试重组。官方运行时基线与依赖闭包保持不变。
@@ -64,6 +70,7 @@
 - 便携数据与工作区、内部会话路径迁移，以及 `doctor` / `repair` / `reset`。
 - 完整源码更新校验；自动检查仅通知，保留用户数据与 `models/` 目录。
 
+[Unreleased]: https://github.com/Tsungloong/deepseek-harness-portable/compare/v1.0.2...HEAD
 [1.0.2]: https://github.com/Tsungloong/deepseek-harness-portable/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Tsungloong/deepseek-harness-portable/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Tsungloong/deepseek-harness-portable/releases/tag/v1.0.0
