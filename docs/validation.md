@@ -11,6 +11,8 @@
 - **真实运行**：`tests/runtime-smoke.mjs` 通过——官方 CLI `--help`、上游 projectKey 实现对照、koffi、真实 PTY；Web 未认证访问返回 401，启动令牌 URL 返回 200 HTML；停止后端口释放。
 - **单元测试**：`runtimes\windows-x64\node\node.exe --test tests/*.test.mjs` → 11 项通过、0 失败、0 跳过。覆盖依赖锁校验和、默认启动的数据隔离与参数透传、损坏 Node 归档隔离、reset 经启动器保留 `models/` 与 `scripts/`、真实更新包的白名单替换、真实会话文件迁移。
 - **仓库一致性**：`node scripts/check.mjs` 通过（版本与 CHANGELOG 段、依赖锁 SHA-256、相对 Markdown 链接、隐私与本机路径、`.mjs` / `.json` 语法）。
+- **全新目录 bootstrap**：在隔离目录用 `windows.bat setup` 从空目录完成 Node 下载校验/解压、612 个 npm 包安装与原生依赖重建（exit 0）；随后 `windows.bat --version` 为 1.0.2，doctor 为 8 OK / 2 WARN / 0 FAIL。
+- **1.0.1 → 1.0.2 升级路径**：用 1.0.1 自带的旧更新器从本地 HTTP 读取 1.0.2 归档完成更新（exit 0）；`data/`、`models/`、`runtimes/`、`state/` 保留，更新后 `--version` 为 1.0.2 / dsh 0.2.1-rc.2。
 
 ### 跨版本会话
 
