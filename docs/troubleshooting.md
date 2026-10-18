@@ -1,12 +1,14 @@
 # 故障排查
 
+遇到未列出的问题，请附平台、便携层版本（`windows.bat --version` 或 `sh linux.sh --version`）与 `doctor` 输出，通过 [Bug 报告](https://github.com/Tsungloong/deepseek-harness-portable/issues/new?template=bug_report.yml) 反馈；提交前务必脱敏。
+
 ## 下载或安装失败
 
 从终端运行 `windows.bat setup` / `sh linux.sh setup` 查看实际错误。
 确认网络、可写目录和可用磁盘空间；建议预留至少 1 GiB。
 代理可用 `HTTPS_PROXY` 设置。下载校验失败会生成 `.bad` 文件，不会使用它。
 
-安装中断后，如果提示锁目录存在，先确认没有安装进程，再删除提示中的 `.node-lock` 或 `state/.setup-lock`，重新执行 setup。
+安装中断后，如果提示安装锁存在，先确认没有安装进程，再删除提示中的 `.node-lock`，重新执行 setup。
 
 ## 浏览器打不开或端口占用
 
@@ -27,9 +29,9 @@ windows.bat web --port 3081
 不要仅凭程序未签名就判定为误报。核对下载来源、具体检测名称和文件。
 使用 Release 附带的 `checksums.txt` 核对下载包：
 ```powershell
-Get-FileHash .\deepseek-harness-portable-1.0.1.zip -Algorithm SHA256
+Get-FileHash .\deepseek-harness-portable-1.0.2.zip -Algorithm SHA256
 ```
-保留检测信息，通过仓库 Issue 反馈；确认来源与文件可信后再决定是否恢复被隔离文件。
+保留检测信息，通过 [Bug 报告](https://github.com/Tsungloong/deepseek-harness-portable/issues/new?template=bug_report.yml) 反馈；确认来源与文件可信后再决定是否恢复被隔离文件。
 不要为了运行而整体关闭安全防护。
 
 ## 中文、空格路径与 U 盘

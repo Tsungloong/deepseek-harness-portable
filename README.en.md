@@ -1,65 +1,94 @@
 # DeepSeek Harness Portable
 
-Run the official DeepSeek Harness from one movable folder. No global Node installation or system PATH changes.
+Run the official DeepSeek Harness from one movable folder: unzip, launch, and carry your workspace and sessions with you.
+No preinstalled Node.js and no system PATH changes; the wrapper only handles bootstrap, directory isolation and migration, leaving the official Web UI, plugins and model configuration untouched.
 
-[Download](https://github.com/Tsungloong/deepseek-harness-portable/releases/latest) · [中文](README.md)
+[![CI](https://github.com/Tsungloong/deepseek-harness-portable/actions/workflows/ci.yml/badge.svg)](https://github.com/Tsungloong/deepseek-harness-portable/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Tsungloong/deepseek-harness-portable)](https://github.com/Tsungloong/deepseek-harness-portable/releases/latest)
+[![License](https://img.shields.io/github/license/Tsungloong/deepseek-harness-portable)](LICENSE)
 
-Source baseline: portable **1.0.1**, official Harness **0.2.1-rc.2**. The official Web UI and configuration stay unmodified; the wrapper handles bootstrap, directory isolation and relocation.
+[中文](README.md) · [Download latest](https://github.com/Tsungloong/deepseek-harness-portable/releases/latest) · [User guide](docs/user-guide.md)
 
-## Start
+Portable **1.0.2** / official Harness **0.2.1-rc.2** (Node.js 24.21.0, pnpm 11.28.0).
 
-- **Windows x64:** unzip, then double-click `windows.bat`.
-- **Linux x64 / glibc:** run `sh linux.sh`.
-- **Apple Silicon macOS:** run `sh mac.sh` (runtime CI is required before release; desktop walkthrough pending).
+![Workbench screenshot](docs/screenshots/workbench.png)
 
-The first launch downloads verified Node.js and the locked official Harness dependencies.
-Open the complete URL printed after **`dsh web:`**. Press **Ctrl+C** to stop.
-Configure models and API endpoints in the official workbench. The interface can start offline after setup; cloud inference needs network access and credentials.
+## Quick start
+
+- **Windows 10/11 x64:** unzip, then double-click `windows.bat`.
+- **Linux x64 (glibc):** `sh linux.sh`
+- **macOS Apple Silicon:** `sh mac.sh`
+
+The first launch downloads and verifies the pinned Node.js and official Harness; later launches reuse them. Open the complete URL printed after **`dsh web:`** (it contains an access token). Press **Ctrl+C** to stop.
+First install needs network access; afterwards the UI can start offline, while cloud inference still needs network and credentials. Configure models and API endpoints in the official workbench.
 
 ## Commands
 
-Replace `windows.bat` with `sh linux.sh` or `sh mac.sh` on Unix.
+`windows.bat` on Windows; use `sh linux.sh` / `sh mac.sh` on Unix.
 
-- `setup`: install the pinned runtime; reuse an existing installation.
-- `doctor`: 16 checks, with OK / WARN / FAIL results.
-- `repair`: reinstall Node and Harness while preserving `data/`.
-- `reset`: confirm and delete data, runtimes and caches; preserve source and `models/`.
-- `portable-update`: install a verified source release; its pinned runtime is installed on the next launch.
-- `--version`: show portable and Harness versions.
-- `-- <args>`: forward unchanged arguments to Harness.
-- `web --port 3081`: use another port.
+| Command | Purpose |
+|---|---|
+| `windows.bat` | Start the Web workbench |
+| `windows.bat setup` | Install the pinned runtime; reuse an existing installation |
+| `windows.bat doctor` | Diagnose step by step with OK/WARN/FAIL (WARN means attention needed) |
+| `windows.bat repair` | Reinstall Node and Harness while keeping `data/` |
+| `windows.bat reset` | Delete data and runtimes after confirmation; keep `models/` and source |
+| `windows.bat portable-update` | Verify and update the portable source; next launch installs its runtime |
+| `windows.bat --version` | Show portable and official Harness versions |
+| `windows.bat -- <args>` | Forward arguments unchanged to the official CLI, e.g. `-- --help` |
+| `windows.bat web --port 3081` | Start on another port |
 
-Automatic checks run at most once every 24 hours and only announce updates.
-Set `DSH_PORTABLE_NO_AUTO_UPDATE=1` to disable checks. A failed check does not prevent startup.
-A custom `portable-update --manifest URL` must reference a complete source archive with SHA-256.
+Updates are checked at most once every 24 hours and only announced; nothing is replaced while running. Set `DSH_PORTABLE_NO_AUTO_UPDATE=1` to disable checks.
+`windows.bat portable-update --manifest <url>` points at a custom update source; the manifest must provide a full source archive URL and its SHA-256.
 
 ## Data and relocation
 
-The Web launch directory is `data/workspace/`. The official UI restores registered workspaces; its auto-created default may instead be under `data/portable-home/Documents/deepseek-harness/default-workspace/`. Both stay inside the portable folder. Harness data lives in `data/dsh-home/`,
-shared agent data in `data/agents-home/`, and child-process home in `data/portable-home/`.
-CLI passthrough retains the caller's current directory. `models/` is a preserved user directory, not a local inference service.
+```text
+deepseek-harness-portable/
+├── windows.bat / linux.sh / mac.sh
+├── scripts/                 launchers, manifest, dependency lock and repository checks
+├── tests/                   behavior-level tests against a real installation
+├── docs/                    user guide, troubleshooting and validation
+├── models/                  user-provided files, preserved by reset
+├── data/
+│   ├── dsh-home/            sessions, settings, plugins and credentials
+│   ├── agents-home/         shared Agent / Skills data
+│   ├── portable-home/       child-process HOME and app caches
+│   └── workspace/           Web launch directory, may hold portable projects
+├── runtimes/<platform>/     Node.js, Harness, pnpm
+├── packages/                download cache
+├── state/                   installation and run state
+├── logs/
+└── temp/                    install and update staging
+```
 
-Stop before copying the folder. Internal workspace paths, session directories, log headers and projection caches are relocated together, with backups.
-External projects are not copied or silently replaced with empty directories; select their actual location on the destination machine.
-Different operating systems need their own runtime. Third-party plugins may not be portable.
+- After a full shutdown (Ctrl+C and wait for exit), copy the whole folder to move it to another location or machine; internal session paths, workspace registrations and projection caches migrate together, with `.portable-backup` files kept before rewrites.
+- The official auto-created default workspace may also live under `data/portable-home/Documents/deepseek-harness/default-workspace/`; it travels with the folder.
+- External projects are not copied with the folder; select their real location in the workbench on the destination machine. A different OS needs its own pinned runtime.
+- `models/` is a preserved user directory, not a local inference service.
 
-Targets: Windows 10/11 x64, glibc Linux x64 and Apple Silicon macOS.
-Windows/Linux ARM64, Intel macOS and musl/Alpine are not supported.
-Prefer NTFS on Windows, ext4 on Linux, and APFS on macOS; allow at least 1 GiB.
-Unix requires owner-only credential permissions (0600). Linux exFAT and WSL Windows mounts without metadata do not meet this requirement; use a Linux filesystem inside WSL.
-See [validation](docs/validation.md) for observed results and untested platforms. Release notes link the required passing Windows, Linux and macOS CI run for the released commit.
+## Platforms and verification
 
-## Upgrading to 0.2.1-rc.2
+Supported: Windows 10/11 x64, glibc Linux x64, Apple Silicon macOS. Not supported: Windows/Linux ARM64, Intel macOS and musl/Alpine.
 
-Stop Harness and back up both `data/` and the old source/runtime before the first new launch. Saved Web credentials now take precedence over environment values; headless uses environment/`.env` credentials by default. The official `--from-default-profile` option now replaces an existing named profile, so do not use it merely to reopen one. Check third-party plugins against the new engine requirements; the old experimental schedule bundle is replaced by the built-in feature. For rollback, restore the matching pre-upgrade source/runtime and data together.
+Prefer NTFS on Windows, a Unix-permission filesystem such as ext4 on Linux, and APFS on macOS; allow at least 1 GiB. On Unix the official requirement is credential permissions `0600`; inside WSL keep the whole folder on the Linux filesystem, since exFAT and metadata-less Windows mounts do not qualify.
 
-## Credentials
+A release requires passing CI on Windows, Linux and macOS; the matching run is linked from the release notes. Local test scope and untested items are in [validation](docs/validation.md); the macOS desktop walkthrough is still pending.
 
-Credentials remain plain files under `data/`. Anyone holding the folder may be able to use them.
-Do not publish an initialized personal installation. Sign out and clear personal data before sharing; revoke credentials if the drive is lost.
+## Security
 
-## License
+Credentials are plain files under `data/`; the wrapper adds no encryption. **Anyone holding the folder may be able to use the accounts or API keys inside.**
+Do not publish a personal installation; sign out and clear personal data before sharing, and revoke or rotate credentials if the device is lost. Report vulnerabilities per [SECURITY.md](SECURITY.md).
 
-Maintainer: **Tsungloong**. Apache-2.0 covers this bootstrap layer.
-The official Harness is installed unchanged under its own license.
-This is an independent community project; DeepSeek names and marks belong to their owners. See [NOTICE](NOTICE.md) for third-party notices.
+## Documentation
+
+- [User guide](docs/user-guide.md): start and stop, workspaces, CLI passthrough, repair and reset, relocation, updates and the 0.2.1-rc.2 upgrade.
+- [Troubleshooting](docs/troubleshooting.md): installation, ports, security software, paths and migration, update failures.
+- [Validation](docs/validation.md): observed scope, CI coverage and untested items.
+- [Docs index](docs/README.md) · [Changelog](CHANGELOG.md)
+
+## Contributing and license
+
+Maintainer **Tsungloong**. Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md), read the [Code of Conduct](CODE_OF_CONDUCT.md), and report security issues privately per [SECURITY.md](SECURITY.md).
+
+The portable bootstrap layer is Apache-2.0; the official Harness is installed unchanged under its own license. Third-party notices and trademark statements are in [NOTICE.md](NOTICE.md). This is an independent community project; DeepSeek names and marks belong to their owners.
