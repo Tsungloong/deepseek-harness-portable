@@ -1,15 +1,15 @@
 // Real official persistence + AgentLoop, driven only by a loopback Messages fixture.
-// Usage: node scripts/tests/session-upgrade-smoke.mjs <previous dsh runtime directory>
+// Usage: node tests/session-upgrade-smoke.mjs <previous dsh runtime directory>
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { spawn, execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, copyFileSync, renameSync, rmSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createPortable, TARGETS } from '../portable.mjs'
-import { migrate } from '../session-portability.mjs'
+import { createPortable, TARGETS } from '../scripts/portable.mjs'
+import { migrate } from '../scripts/session-portability.mjs'
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const target = TARGETS[process.platform + '-' + process.arch]
 const current = join(root, 'runtimes', target, 'dsh')
 const previous = resolve(process.argv[2] || current)
