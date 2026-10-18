@@ -1,46 +1,86 @@
-name: Portable checks
+name: CI
+
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
+
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  portable:
+  checks:
+    name: Checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+      - name: Repository consistency
+        run: npm run check
+      - name: Unit tests
+        run: node --test tests/*.test.mjs
+
+  runtime:
+    name: Runtime (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2022, macos-14]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+        include:
+          - os: ubuntu-24.04
+            target: linux-x64
+            bootstrap: sh linux.sh setup
+            node: runtimes/linux-x64/node/bin/node
+          - os: windows-2022
+            target: windows-x64
+            bootstrap: windows.bat setup
+            node: 'runtimes\windows-x64\node\node.exe'
+          - os: macos-14
+            target: macos-arm64
+            bootstrap: sh mac.sh setup
+            node: runtimes/macos-arm64/node/bin/node
     steps:
       - uses: actions/checkout@v4
-      - name: Bootstrap Linux
-        if: runner.os == 'Linux'
-        run: sh linux.sh setup
-      - name: Bootstrap macOS
-        if: runner.os == 'macOS'
-        run: sh mac.sh setup
-      - name: Bootstrap Windows
+      - name: Bootstrap runtime (Windows)
         if: runner.os == 'Windows'
         shell: cmd
-        run: windows.bat setup
-      - name: Unit and runtime checks (Unix)
+        run: ${{ matrix.bootstrap }}
+      - name: Bootstrap runtime (Unix)
         if: runner.os != 'Windows'
         shell: bash
-        run: |
-          if [ "$RUNNER_OS" = macOS ]; then target=macos-arm64; else target=linux-x64; fi
-          node="runtimes/$target/node/bin/node"
-          "$node" --test scripts/tests/*.test.mjs
-          "$node" scripts/tests/runtime-smoke.mjs
-          "$node" scripts/tests/session-upgrade-smoke.mjs
-      - name: Unit and runtime checks (Windows)
+        run: ${{ matrix.bootstrap }}
+      - name: Runtime smoke (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          & .\runtimes\windows-x64\node\node.exe --test scripts/tests/*.test.mjs
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          & .\runtimes\windows-x64\node\node.exe scripts/tests/runtime-smoke.mjs
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          & .\runtimes\windows-x64\node\node.exe scripts/tests/session-upgrade-smoke.mjs
+          & '${{ matrix.node }}' tests/runtime-smoke.mjs
           exit $LASTEXITCODE
+      - name: Runtime smoke (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          "${{ matrix.node }}" tests/runtime-smoke.mjs
+
+  sessions:
+    name: Sessions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bootstrap runtime
+        shell: bash
+        run: sh linux.sh setup
+      - name: Session upgrade smoke
+        shell: bash
+        run: |
+          runtimes/linux-x64/node/bin/node tests/session-upgrade-smoke.mjs
