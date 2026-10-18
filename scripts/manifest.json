@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "portableVersion": "1.0.1",
+  "portableVersion": "1.0.2",
   "deepseekHarness": {
     "package": "@deepseek-ai/dsh",
     "updateChannel": "latest",

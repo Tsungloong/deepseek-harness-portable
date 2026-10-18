@@ -12,14 +12,7 @@ if [ -f "$ROOT/state/running.json" ]; then
     exit 1
   fi
 fi
-if [ -d "$ROOT/state/.setup-lock" ]; then
-  echo '[portable] 安装正在进行 / Setup is active; stop it before resetting'
-  exit 1
-fi
-
 DELETE_DIRS="data runtimes packages logs state temp"
-KEEP_DIRS="models"
-KEEP_FILES="windows.bat linux.sh mac.sh README.txt README.md README.en.md LICENSE NOTICE.md .gitignore"
 
 echo "[portable] DeepSeek Harness Portable reset"
 echo "[portable] 位置 / Location: $ROOT"
@@ -32,15 +25,11 @@ for d in $DELETE_DIRS; do
 done
 echo
 echo "[portable] 将保留 / Will keep:"
-for d in $KEEP_DIRS; do
-  echo "  $d/"
-done
-for f in $KEEP_FILES; do
-  if [ -f "$ROOT/$f" ]; then
-    echo "  $f"
-  fi
-done
-echo "  scripts/"
+echo "  models/"
+echo "  windows.bat linux.sh mac.sh"
+echo "  scripts/ tests/ docs/"
+echo "  README.md README.en.md README.txt LICENSE NOTICE.md CHANGELOG.md"
+echo "  CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md"
 echo
 
 printf "[portable] 确认删除？这不可恢复 / Confirm delete? This cannot be undone [y/N] "

@@ -4,9 +4,11 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 
-// Never replace user data, models, downloaded runtimes, or Git history.
-export const SOURCE_ITEMS = ['scripts', 'docs', 'linux.sh', 'mac.sh', 'windows.bat',
-  'README.md', 'README.en.md', 'README.txt', 'LICENSE', 'NOTICE.md', '.gitignore', '.gitattributes', 'package.json']
+// Directories replace wholesale; root files are explicit, so a release can never
+// delete user-created files in the portable folder.
+const REPLACE = ['scripts', 'docs', 'tests', 'linux.sh', 'mac.sh', 'windows.bat', 'README.md', 'README.en.md',
+  'README.txt', 'LICENSE', 'NOTICE.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'SECURITY.md', 'CODE_OF_CONDUCT.md',
+  'package.json', '.gitignore', '.gitattributes', '.editorconfig']
 const log = (...args) => console.log('[portable]', ...args)
 
 export function compareVersions(a, b) {
@@ -26,12 +28,13 @@ export async function checkForUpdate({ root, manifest }) {
   const path = join(root, 'state/update-check.json')
   const last = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')).checkedAt : 0
   if (Date.now() - last < (manifest.release.autoUpdateHours ?? 24) * 3600000) return
-  mkdirSync(join(root, 'state'), { recursive: true })
-  writeFileSync(path, JSON.stringify({ checkedAt: Date.now() }))
   const remote = await getManifest(manifest.release.manifestUrl)
   if (compareVersions(remote.portableVersion, manifest.portableVersion) > 0) {
     log('新版本 / New release: ' + remote.portableVersion + '; 退出工作台后运行 portable-update / Stop the workbench and run portable-update')
   }
+  // Only a successful check may suppress the next attempt for 24 hours.
+  mkdirSync(join(root, 'state'), { recursive: true })
+  writeFileSync(path, JSON.stringify({ checkedAt: Date.now() }))
 }
 
 export async function installUpdate({ root, manifest, args = [] }) {
@@ -55,24 +58,21 @@ export async function installUpdate({ root, manifest, args = [] }) {
     const archive = join(directory, 'release.tar.gz')
     writeFileSync(archive, bytes)
     const entries = execFileSync('tar', ['-tzf', archive], { encoding: 'utf8' }).trim().split(/\r?\n/)
-    if (entries.some(path => path.startsWith('/') || path.includes('\\') || path.split('/').includes('..'))) throw new Error('Unsafe archive path')
+    if (entries.some(path => /^[A-Za-z]:/.test(path) || path.startsWith('/') || path.includes('\\') || path.split('/').includes('..'))) throw new Error('Unsafe archive path')
     const listing = execFileSync('tar', ['-tvzf', archive], { encoding: 'utf8' })
-    if (listing.split(/\r?\n/).some(line => /^[lh]/.test(line))) throw new Error('Release must not contain links')
+    if (listing.split(/\r?\n/).some(line => /^[lhbcp]/.test(line))) throw new Error('Release must not contain links or device files')
     execFileSync('tar', ['-xzf', archive, '-C', stage])
     const staged = JSON.parse(readFileSync(join(stage, 'scripts/manifest.json'), 'utf8'))
     if (staged.portableVersion !== remote.portableVersion) throw new Error('Archive version mismatch')
     const lock = readFileSync(join(stage, 'scripts/locks/package-lock.json'), 'utf8').replace(/\r\n/g, '\n')
     if (createHash('sha256').update(lock).digest('hex') !== staged.dependencyLock.sha256) throw new Error('Release dependency lock mismatch')
-    for (const item of SOURCE_ITEMS) if (!existsSync(join(stage, item))) throw new Error('Release is missing ' + item)
-    for (const item of SOURCE_ITEMS) {
-      const source = join(stage, item), destination = join(root, item), old = join(backup, item)
-      if (existsSync(destination)) renameSync(destination, old)
+    for (const item of REPLACE) {
+      if (!existsSync(join(stage, item))) continue
+      const destination = join(root, item)
+      if (existsSync(destination)) renameSync(destination, join(backup, item))
       changed.push(item)
-      renameSync(source, destination)
+      renameSync(join(stage, item), destination)
     }
-    log('已更新到 / Updated to ' + remote.portableVersion + '. 下次启动安装对应运行时，数据保留 / Next launch installs its pinned runtime; data retained.')
-    rmSync(directory, { recursive: true, force: true })
-    return 0
   } catch (error) {
     for (const item of changed.reverse()) {
       rmSync(join(root, item), { recursive: true, force: true })
@@ -80,4 +80,8 @@ export async function installUpdate({ root, manifest, args = [] }) {
     }
     throw error
   }
+  // Cleanup stays outside the try: a cleanup error must never trigger a rollback.
+  rmSync(directory, { recursive: true, force: true })
+  log('已更新到 / Updated to ' + remote.portableVersion + '. 下次启动安装对应运行时，数据保留 / Next launch installs its pinned runtime; data retained.')
+  return 0
 }

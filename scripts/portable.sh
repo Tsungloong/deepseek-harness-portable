@@ -28,8 +28,6 @@ HASH=$(field "$TARGET" sha256)
 [ -n "$VERSION" ] && [ -n "$URL" ] && [ -n "$HASH" ] || fail 'Node manifest is incomplete'
 RUNTIME="$ROOT/runtimes/$TARGET"
 NODE="$RUNTIME/node/bin/node"
-PREVIOUS="$RUNTIME/node.previous"
-if [ ! -d "$RUNTIME/node" ] && [ -d "$PREVIOUS" ]; then mv "$PREVIOUS" "$RUNTIME/node"; fi
 ACTUAL_VERSION=$("$NODE" --version 2>/dev/null || true)
 if [ "$ACTUAL_VERSION" != "v$VERSION" ] || [ "${1:-}" = repair ]; then
     command -v xz >/dev/null 2>&1 || fail '请安装 xz-utils / xz is required to extract Node'
@@ -39,7 +37,6 @@ if [ "$ACTUAL_VERSION" != "v$VERSION" ] || [ "${1:-}" = repair ]; then
     mkdir -p "$ARCHIVE_DIR" "$RUNTIME" "$ROOT/temp"
     mkdir "$RUNTIME/.node-lock" 2>/dev/null || fail "Node 安装正在进行；若已中断，删除 $RUNTIME/.node-lock 后重试"
     cleanup() {
-        if [ ! -d "$RUNTIME/node" ] && [ -d "$PREVIOUS" ]; then mv "$PREVIOUS" "$RUNTIME/node"; fi
         rm -rf "$STAGE"
         rmdir "$RUNTIME/.node-lock"
     }
@@ -80,10 +77,9 @@ if [ "$ACTUAL_VERSION" != "v$VERSION" ] || [ "${1:-}" = repair ]; then
     EXTRACTED=$(find "$STAGE" -mindepth 1 -maxdepth 1 -type d | head -1)
     [ -x "$EXTRACTED/bin/node" ] || fail 'Node archive layout is invalid'
     [ "$("$EXTRACTED/bin/node" --version)" = "v$VERSION" ] || fail 'Node version does not match manifest'
-    rm -rf "$PREVIOUS"
-    if [ -d "$RUNTIME/node" ]; then mv "$RUNTIME/node" "$PREVIOUS"; fi
+    # Old runtime is removed only after the staged one proved valid.
+    rm -rf "$RUNTIME/node"
     mv "$EXTRACTED" "$RUNTIME/node"
-    rm -rf "$PREVIOUS"
     cleanup
     trap - EXIT INT TERM
 fi

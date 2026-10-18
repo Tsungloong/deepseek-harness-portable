@@ -3,9 +3,9 @@ setlocal
 
 set "ROOT=%~dp0.."
 set "DSH_PORTABLE_RESET_ROOT=%ROOT%"
-powershell.exe -NoProfile -Command "$p=Join-Path $env:DSH_PORTABLE_RESET_ROOT 'state\running.json'; if (Test-Path $p) { $id=(Get-Content -Raw $p | ConvertFrom-Json).pid; if (Get-Process -Id $id -ErrorAction SilentlyContinue) { exit 1 } }; if (Test-Path (Join-Path $env:DSH_PORTABLE_RESET_ROOT 'state\.setup-lock')) { exit 1 }"
+powershell.exe -NoProfile -Command "$p=Join-Path $env:DSH_PORTABLE_RESET_ROOT 'state\running.json'; if (Test-Path $p) { $id=(Get-Content -Raw $p | ConvertFrom-Json).pid; if (Get-Process -Id $id -ErrorAction SilentlyContinue) { exit 1 } }"
 if errorlevel 1 (
-  echo [portable] Stop the workbench or setup process before resetting.
+  echo [portable] Stop the workbench before resetting.
   exit /b 1
 )
 
@@ -19,10 +19,10 @@ for %%d in (data runtimes packages logs state temp) do (
 echo.
 echo [portable] Will keep:
 echo   models\
-for %%f in (windows.bat linux.sh mac.sh README.txt README.md README.en.md LICENSE NOTICE.md .gitignore) do (
-  if exist "%ROOT%\%%f" echo   %%f
-)
-echo   scripts\
+echo   windows.bat linux.sh mac.sh
+echo   scripts\ tests\ docs\
+echo   README.md README.en.md README.txt LICENSE NOTICE.md CHANGELOG.md
+echo   CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md
 echo.
 
 set "confirm="

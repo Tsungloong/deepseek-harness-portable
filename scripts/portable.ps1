@@ -15,10 +15,6 @@ try {
     $version = $manifest.node.version
     $runtime = Join-Path $root "runtimes\$target"
     $node = Join-Path $runtime 'node\node.exe'
-    $previous = Join-Path $runtime 'node.previous'
-    if (-not (Test-Path (Join-Path $runtime 'node')) -and (Test-Path $previous)) {
-        Move-Item -LiteralPath $previous -Destination (Join-Path $runtime 'node')
-    }
     $actualVersion = if (Test-Path $node) { & $node --version } else { '' }
     if ($actualVersion -ne "v$version" -or ($Arguments.Count -gt 0 -and $Arguments[0] -eq 'repair')) {
         $archive = Join-Path $root "packages\bootstrap\$target\node-$version.zip"
@@ -59,14 +55,10 @@ try {
             $extracted = Get-ChildItem -LiteralPath $stage -Directory | Select-Object -First 1
             if (-not $extracted -or -not (Test-Path (Join-Path $extracted.FullName 'node.exe'))) { throw 'Invalid Node archive layout.' }
             if ((& (Join-Path $extracted.FullName 'node.exe') --version) -ne "v$version") { throw 'Node version mismatch.' }
-            if (Test-Path $previous) { Remove-Item -LiteralPath $previous -Recurse -Force }
-            if (Test-Path (Join-Path $runtime 'node')) { Move-Item -LiteralPath (Join-Path $runtime 'node') -Destination $previous }
+            # Old runtime is removed only after the staged one proved valid.
+            if (Test-Path (Join-Path $runtime 'node')) { Remove-Item -LiteralPath (Join-Path $runtime 'node') -Recurse -Force }
             Move-Item -LiteralPath $extracted.FullName -Destination (Join-Path $runtime 'node')
-            if (Test-Path $previous) { Remove-Item -LiteralPath $previous -Recurse -Force }
         } finally {
-            if (-not (Test-Path (Join-Path $runtime 'node')) -and (Test-Path $previous)) {
-                Move-Item -LiteralPath $previous -Destination (Join-Path $runtime 'node')
-            }
             if (Test-Path $stage) { Remove-Item -LiteralPath $stage -Recurse -Force }
             Remove-Item -LiteralPath $lock -Force
         }
