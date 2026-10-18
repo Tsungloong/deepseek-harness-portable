@@ -3,7 +3,9 @@ DeepSeek Harness Portable
 
 Windows x64: double-click windows.bat
 Linux x64 (glibc): sh linux.sh
-macOS Apple Silicon: sh mac.sh (runtime checked in CI)
+macOS Apple Silicon: sh mac.sh (runtime CI required before release)
+
+Portable 1.0.1 / Official Harness 0.2.1-rc.2
 
 首次安装需要联网。打开终端中 dsh web: 打印的完整地址。
 按 Ctrl+C 停止后再复制文件夹或拔出设备。

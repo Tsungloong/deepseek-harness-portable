@@ -4,11 +4,13 @@ Run the official DeepSeek Harness from one movable folder. No global Node instal
 
 [Download](https://github.com/Tsungloong/deepseek-harness-portable/releases/latest) · [中文](README.md)
 
+Source baseline: portable **1.0.1**, official Harness **0.2.1-rc.2**. The official Web UI and configuration stay unmodified; the wrapper handles bootstrap, directory isolation and relocation.
+
 ## Start
 
 - **Windows x64:** unzip, then double-click `windows.bat`.
 - **Linux x64 / glibc:** run `sh linux.sh`.
-- **Apple Silicon macOS:** run `sh mac.sh` (runtime checked in CI; desktop walkthrough pending).
+- **Apple Silicon macOS:** run `sh mac.sh` (runtime CI is required before release; desktop walkthrough pending).
 
 The first launch downloads verified Node.js and the locked official Harness dependencies.
 Open the complete URL printed after **`dsh web:`**. Press **Ctrl+C** to stop.
@@ -33,7 +35,7 @@ A custom `portable-update --manifest URL` must reference a complete source archi
 
 ## Data and relocation
 
-The default workspace is `data/workspace/`. Harness data lives in `data/dsh-home/`,
+The Web launch directory is `data/workspace/`. The official UI restores registered workspaces; its auto-created default may instead be under `data/portable-home/Documents/deepseek-harness/default-workspace/`. Both stay inside the portable folder. Harness data lives in `data/dsh-home/`,
 shared agent data in `data/agents-home/`, and child-process home in `data/portable-home/`.
 CLI passthrough retains the caller's current directory. `models/` is a preserved user directory, not a local inference service.
 
@@ -45,7 +47,11 @@ Targets: Windows 10/11 x64, glibc Linux x64 and Apple Silicon macOS.
 Windows/Linux ARM64, Intel macOS and musl/Alpine are not supported.
 Prefer NTFS on Windows, ext4 on Linux, and APFS on macOS; allow at least 1 GiB.
 Unix requires owner-only credential permissions (0600). Linux exFAT and WSL Windows mounts without metadata do not meet this requirement; use a Linux filesystem inside WSL.
-See [validation](docs/validation.md) for observed results and untested platforms.
+See [validation](docs/validation.md) for observed results and untested platforms. Release notes link the required passing Windows, Linux and macOS CI run for the released commit.
+
+## Upgrading to 0.2.1-rc.2
+
+Stop Harness and back up both `data/` and the old source/runtime before the first new launch. Saved Web credentials now take precedence over environment values; headless uses environment/`.env` credentials by default. The official `--from-default-profile` option now replaces an existing named profile, so do not use it merely to reopen one. Check third-party plugins against the new engine requirements; the old experimental schedule bundle is replaced by the built-in feature. For rollback, restore the matching pre-upgrade source/runtime and data together.
 
 ## Credentials
 

@@ -6,7 +6,7 @@ import { join, win32, posix } from 'node:path'
 import { zstdCompressSync, zstdDecompressSync } from 'node:zlib'
 
 // The pinned upstream's projectKey is private, not exported. Keep this small
-// encoding equivalent to dsh-session-persistence-jsonl@0.2.0-rc.2, with a test
+// encoding equivalent to dsh-session-persistence-jsonl@0.2.1-rc.2, with a test
 // against the installed package (separator runs, UTF-16 and uppercase hex).
 export function projectKey(cwd) {
   if (!cwd) throw new Error('cannot encode an empty project path')

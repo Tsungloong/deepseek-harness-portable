@@ -4,6 +4,8 @@
 
 [下载最新版本](https://github.com/Tsungloong/deepseek-harness-portable/releases/latest) · [English](README.en.md) · [使用指南](docs/user-guide.md)
 
+当前源码基线：便携层 **1.0.1** / 官方 Harness **0.2.1-rc.2**。官方 Web、插件入口和模型配置保持原样，便携层只负责引导、隔离目录和迁移。升级前请阅读[兼容性与回退说明](docs/user-guide.md#升级到-021-rc2)。
+
 ## 开始使用
 
 **Windows x64**：解压后双击 `windows.bat`。
@@ -59,7 +61,7 @@ deepseek-harness-portable/
 │   ├── dsh-home/            会话、配置、插件与凭据
 │   ├── agents-home/         共享 Agent / Skills 数据
 │   ├── portable-home/       子进程的 HOME 与应用缓存配置
-│   └── workspace/           默认工作区
+│   └── workspace/           Web 启动目录，可放便携项目
 ├── runtimes/<平台>/         Node.js、Harness、pnpm
 ├── packages/                下载缓存
 ├── state/                   安装与运行状态
@@ -67,7 +69,7 @@ deepseek-harness-portable/
 └── temp/                    安装暂存
 ```
 
-默认 Web 工作区位于 `data/workspace/`。命令行透传保留调用时的当前目录，便于处理外部项目。
+Web 启动目录为 `data/workspace/`，界面会恢复官方已登记的工作区；官方自动创建的默认工作区也可能位于 `data/portable-home/Documents/deepseek-harness/default-workspace/`。两者都随整个文件夹携带。命令行透传保留调用时的当前目录，便于处理外部项目。
 `models/` 只是保留目录，不会自动下载或启动本地模型。
 
 ## 换目录、换电脑
@@ -87,7 +89,7 @@ Windows 建议 NTFS，Linux 使用支持 Unix 文件权限的文件系统（如 
 目标平台：Windows 10/11 x64、Linux x64（glibc）、macOS Apple Silicon。
 不支持 Windows ARM64、Linux ARM64、Intel macOS 和 musl/Alpine。
 
-本次实测范围和限制见 [验证记录](docs/validation.md)。macOS arm64 已通过 CI 运行时验证，尚未进行桌面交互走查。
+本次实测范围和限制见 [验证记录](docs/validation.md)。0.2.1-rc.2 已在 Windows x64 和 WSL2 / Linux x64 本地检查；发布前要求 Windows、Linux、macOS 三平台 CI 全部通过，对应记录见 Release 说明。macOS 桌面交互尚未走查。
 
 ## 数据与凭据
 

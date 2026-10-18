@@ -39,6 +39,15 @@ test('production lock checksum and Harness integrity match the manifest', t => {
   portable.verifyLock()
   assert.equal(sha256CanonicalText('a\r\nb\r\n'), sha256CanonicalText('a\nb\n'))
 })
+test('release metadata and lifecycle approvals match the locked runtime', t => {
+  const { portable } = fixture(t)
+  const { lock } = portable.verifyLock()
+  assert.equal(JSON.parse(readFileSync(join(source, 'package.json'))).version, portable.manifest.portableVersion)
+  const scripts = Object.entries(lock.packages).filter(([, pkg]) => pkg.hasInstallScript)
+    .map(([path, pkg]) => path.split('node_modules/').at(-1) + '@' + pkg.version).sort()
+  assert.deepEqual(Object.keys(portable.manifest.allowScripts).sort(), scripts)
+  for (const name of scripts) assert.equal(portable.manifest.allowScripts[name], true)
+})
 test('tampered dependency lock is rejected', t => {
   const { root, portable } = fixture(t)
   writeFileSync(join(root, 'scripts/locks/package-lock.json'), '{}')
@@ -135,7 +144,7 @@ test('CLI entry runs through a directory alias, including macOS /var', { skip: w
   t.after(() => rmSync(alias))
   const result = spawnSync(process.execPath, [join(alias, 'scripts/portable.mjs'), '--version'], { encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr)
-  assert.match(result.stdout, /DeepSeek Harness Portable v1\.0\.0/)
+  assert.ok(result.stdout.includes('DeepSeek Harness Portable v' + JSON.parse(readFileSync(join(source, 'package.json'))).version))
 })
 test('release versions are compared numerically', () => {
   assert.equal(compareVersions('1.10.0', '1.9.0'), 1)

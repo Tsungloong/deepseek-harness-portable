@@ -27,7 +27,7 @@ windows.bat web --port 3081
 不要仅凭程序未签名就判定为误报。核对下载来源、具体检测名称和文件。
 使用 Release 附带的 `checksums.txt` 核对下载包：
 ```powershell
-Get-FileHash .\deepseek-harness-portable-1.0.0.zip -Algorithm SHA256
+Get-FileHash .\deepseek-harness-portable-1.0.1.zip -Algorithm SHA256
 ```
 保留检测信息，通过仓库 Issue 反馈；确认来源与文件可信后再决定是否恢复被隔离文件。
 不要为了运行而整体关闭安全防护。

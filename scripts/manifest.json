@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "portableVersion": "1.0.0",
+  "portableVersion": "1.0.1",
   "deepseekHarness": {
     "package": "@deepseek-ai/dsh",
     "updateChannel": "latest",
-    "version": "0.2.0-rc.2",
-    "integrity": "sha512-EAJ3gPNcVt/uv8X19PMm9NkVhWgT7xXNMk0UKCVm+IQ5rpSQOcsMUa0HWlnYYVybKMsccjcRB21vVVsaXQ6IdA=="
+    "version": "0.2.1-rc.2",
+    "integrity": "sha512-tvY+yhfKRifthbqPe/OK0AYxM5ZkvqfYq/jMYgJcEUxiRRL1Vwra3Ti5TB6AXgSWQdiPHYh/Vp6SJa9yHwMNuw=="
   },
   "node": {
     "version": "24.21.0",
@@ -29,7 +29,7 @@
   },
   "pnpm": "11.28.0",
   "allowScripts": {
-    "@deepseek-ai/dsh-subprocess-local@0.2.0-rc.2": true,
+    "@deepseek-ai/dsh-subprocess-local@0.2.1-rc.2": true,
     "koffi@3.1.1": true,
     "node-pty@1.2.0-beta.15": true,
     "@google/genai@2.21.0": true,
@@ -37,7 +37,7 @@
   },
   "dependencyLock": {
     "path": "locks/package-lock.json",
-    "sha256": "a1a60ba2396ff3f7bfbb3fb244d828cfbeb77f965c28af16a053baf0eb0c7b5f"
+    "sha256": "4e09e02b4889d5bd2f5ce56fdccb703ee9479d7b0db9bad62e6d487e9557ce94"
   },
   "release": {
     "repository": "Tsungloong/deepseek-harness-portable",

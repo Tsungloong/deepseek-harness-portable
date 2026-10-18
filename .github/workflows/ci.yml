@@ -33,6 +33,7 @@ jobs:
           node="runtimes/$target/node/bin/node"
           "$node" --test scripts/tests/*.test.mjs
           "$node" scripts/tests/runtime-smoke.mjs
+          "$node" scripts/tests/session-upgrade-smoke.mjs
       - name: Unit and runtime checks (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -40,4 +41,6 @@ jobs:
           & .\runtimes\windows-x64\node\node.exe --test scripts/tests/*.test.mjs
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           & .\runtimes\windows-x64\node\node.exe scripts/tests/runtime-smoke.mjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          & .\runtimes\windows-x64\node\node.exe scripts/tests/session-upgrade-smoke.mjs
           exit $LASTEXITCODE

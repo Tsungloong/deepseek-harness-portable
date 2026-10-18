@@ -1,10 +1,10 @@
 {
   "name": "deepseek-harness-portable-runtime",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Dependency closure for the portable DeepSeek Harness runtime.",
   "dependencies": {
-    "@deepseek-ai/dsh": "0.2.0-rc.2",
+    "@deepseek-ai/dsh": "0.2.1-rc.2",
     "pnpm": "11.28.0"
   }
 }
